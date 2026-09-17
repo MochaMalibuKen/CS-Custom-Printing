@@ -41,9 +41,9 @@ public/portfolio/custom-clear-tote.png
 public/portfolio/church-patch.png
 public/portfolio/tumbler-20.png
 public/portfolio/reunion-cruise.png
-public/portfolio/homecoming.png
-public/portfolio/gamecock-grandma.png
-public/portfolio/joy-tumbler.png
+public/portfolio/homecoming.jpg
+public/portfolio/gamecock-grandma.jpg
+public/portfolio/joy-tumbler.jpg
 ```
 
 Until those files arrive, branded placeholders keep the hero and portfolio layouts stable. No component changes are needed when the files are added.
