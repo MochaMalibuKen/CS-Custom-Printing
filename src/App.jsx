@@ -1,8 +1,24 @@
 import { useEffect, useState } from 'react'
-import { portfolioItems, services, steps } from './data/siteData'
+import { portfolioItems, services, steps, tumblerSizes } from './data/siteData'
 import './App.css'
+import Order from './Order'
 
-const quoteHref = 'mailto:info@cscustomprinting.com?subject=Custom%20Printing%20Quote'
+const quoteHref = 'mailto:cscustomprinting@yahoo.com?subject=Custom%20Printing%20Quote&body=Hello%2C%0A%0AI%20would%20like%20to%20request%20a%20quote%20for%20a%20custom%20order.'
+
+function buildQuoteHref({ name = '', email = '', phone = '', tumblerSize = '', notes = '' } = {}) {
+  const body = [
+    'Hello,',
+    '',
+    `Name: ${name}`,
+    `Email: ${email}`,
+    `Phone: ${phone}`,
+    `Tumbler Size: ${tumblerSize || 'Not specified'}`,
+    '',
+    `Project Details: ${notes || 'Please send pricing and design details.'}`,
+  ].join('\n')
+
+  return `mailto:cscustomprinting@yahoo.com?subject=${encodeURIComponent('Custom Printing Quote')}&body=${encodeURIComponent(body)}`
+}
 
 function Brand({ footer = false }) {
   return <a className={`brand${footer ? ' footer-brand' : ''}`} href="#top" aria-label="C&S Custom Printing home"><span className="brand-mark" aria-hidden="true">C&S</span><span>Custom Printing</span></a>
@@ -15,7 +31,7 @@ function Navigation() {
     <Brand />
     <button className="menu-toggle" type="button" aria-expanded={isOpen} aria-controls="main-navigation" aria-label={`${isOpen ? 'Close' : 'Open'} navigation`} onClick={() => setIsOpen((open) => !open)}><span /><span /><span /></button>
     <nav id="main-navigation" className={isOpen ? 'is-open' : ''} aria-label="Main navigation">
-      <a href="#services" onClick={() => setIsOpen(false)}>Services</a><a href="#work" onClick={() => setIsOpen(false)}>Our Work</a><a href="#process" onClick={() => setIsOpen(false)}>How It Works</a><a href="#contact" onClick={() => setIsOpen(false)}>Contact</a>
+      <a href="#services" onClick={() => setIsOpen(false)}>Services</a><a href="#order" onClick={() => setIsOpen(false)}>Prices & Order</a><a href="#work" onClick={() => setIsOpen(false)}>Our Work</a><a href="#process" onClick={() => setIsOpen(false)}>How It Works</a><a href="#contact" onClick={() => setIsOpen(false)}>Contact</a>
     </nav>
     <a className="button small nav-quote" href={quoteHref}>Get a Quote</a>
   </header>
@@ -30,7 +46,7 @@ function Hero() {
   return <section className="hero" id="top"><div className="hero-copy">
     <p className="eyebrow">Custom-made in Batesburg, South Carolina</p><h1>Your ideas.<br /><em>Brought to life.</em></h1>
     <p className="hero-text">From one-of-a-kind gifts to full group orders, C&S Custom Printing creates bold apparel, tumblers, patches and graphics made especially for you.</p>
-    <div className="hero-actions"><a className="button" href={quoteHref}>Start Your Order <span>→</span></a><a className="text-link" href="#work">See Our Work <span>↓</span></a></div>
+    <div className="hero-actions"><a className="button" href="#order">Start Your Order <span>→</span></a><a className="text-link" href="#work">See Our Work <span>↓</span></a></div>
     <div className="trust" aria-label="Made with care, local service, designed for you"><strong>Made with care</strong><span aria-hidden="true">•</span><strong>Local service</strong><span aria-hidden="true">•</span><strong>Designed for you</strong></div>
   </div><div className="hero-art"><div className="gold-orbit" aria-hidden="true" /><ResilientImage src="/logo.png" alt="C&S Custom Printing — bringing your ideas to life" className="hero-logo" fallback={<div className="logo-placeholder"><b>C&S</b><span>Custom Printing</span><small>Bringing your ideas to life</small></div>} /><div className="floating-card"><b>Custom is our specialty.</b><small>Apparel • Drinkware • Gifts</small></div></div></section>
 }
@@ -48,12 +64,59 @@ function Process() {
 }
 
 function Contact() {
-  return <section className="cta" id="contact"><div><p className="eyebrow">Ready when you are</p><h2>Bring your idea to life.</h2><p>Let’s talk about your next custom order. Reach out for pricing, timing and design details.</p></div><div className="contact-actions"><a className="button gold" href={quoteHref}>Request a Quote →</a><a href="tel:+18033576530">Call 803-357-6530</a></div></section>
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    tumblerSize: tumblerSizes[0],
+    notes: '',
+  })
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((current) => ({ ...current, [name]: value }))
+  }
+
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    const href = buildQuoteHref(formData)
+    window.location.href = href
+  }
+
+  return <section className="cta" id="contact"><div className="cta-copy"><p className="eyebrow">Ready when you are</p><h2>Bring your idea to life.</h2><p>Let’s talk about your next custom order. Reach out for pricing, timing and design details.</p><div className="contact-actions"><a className="button gold" href={quoteHref}>Request a Quote →</a><a href="tel:+18033576530">Call 803-357-6530</a></div></div><form className="quote-form" onSubmit={handleSubmit}>
+    <div className="form-row">
+      <label>
+        <span>Name</span>
+        <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Your name" required />
+      </label>
+      <label>
+        <span>Email</span>
+        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" required />
+      </label>
+    </div>
+    <div className="form-row">
+      <label>
+        <span>Phone</span>
+        <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="(803) 555-0123" required />
+      </label>
+      <label>
+        <span>Tumbler Size</span>
+        <select name="tumblerSize" value={formData.tumblerSize} onChange={handleChange}>
+          {tumblerSizes.map((size) => <option key={size} value={size}>{size}</option>)}
+        </select>
+      </label>
+    </div>
+    <label>
+      <span>Project Details</span>
+      <textarea name="notes" value={formData.notes} onChange={handleChange} rows="5" placeholder="Tell us about your colors, quantity, design ideas, or deadline." required />
+    </label>
+    <button type="submit" className="button">Send Email</button>
+  </form></section>
 }
 
 function Footer() {
-  return <footer><div><Brand footer /><p>Bringing your ideas to life.</p></div><div><h3>Contact</h3><a href="tel:+18033576530">803-357-6530</a><a href="mailto:info@cscustomprinting.com">info@cscustomprinting.com</a></div><div><h3>Mailing Address</h3><address>PO Box 2621<br />Batesburg Leesville, SC 29070</address></div><div><h3>Explore</h3><a href="#services">Services</a><a href="#work">Our Work</a><a href="#process">How It Works</a></div><small>© 2026 C&S Custom Printing. All rights reserved.</small></footer>
+  return <footer><div><Brand footer /><p>Bringing your ideas to life.</p></div><div><h3>Contact</h3><a href="tel:+18033576530">803-357-6530</a><a href="mailto:cscustomprinting@yahoo.com">cscustomprinting@yahoo.com</a></div><div><h3>Mailing Address</h3><address>PO Box 2621<br />Batesburg Leesville, SC 29070</address></div><div><h3>Explore</h3><a href="#services">Services</a><a href="#order">Prices & Order</a><a href="#work">Our Work</a><a href="#process">How It Works</a></div><small>© 2026 C&S Custom Printing. All rights reserved.</small></footer>
 }
 
-function App() { return <><a className="skip-link" href="#main-content">Skip to content</a><Navigation /><main id="main-content"><Hero /><Services /><Portfolio /><Process /><Contact /></main><Footer /></> }
+function App() { return <><a className="skip-link" href="#main-content">Skip to content</a><Navigation /><main id="main-content"><Hero /><Services /><Order /><Portfolio /><Process /><Contact /></main><Footer /></> }
 export default App
